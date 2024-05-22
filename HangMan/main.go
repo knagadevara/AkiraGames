@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	GameType "github.com/knagadevara/TerraOckra/GameType"
-	"github.com/knagadevara/TerraOckra/HangMan/GameOn"
-	utl "github.com/knagadevara/TerraOckra/utl"
+	GameType "github.com/knagadevara/AkiraGames/GameType"
+	"github.com/knagadevara/AkiraGames/HangMan/GameOn"
+	utl "github.com/knagadevara/AkiraGames/utl"
 )
 
 var resp GameType.HangmanApiResp

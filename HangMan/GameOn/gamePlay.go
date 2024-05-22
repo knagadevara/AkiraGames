@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	GameType "github.com/knagadevara/TerraOckra/GameType"
+	GameType "github.com/knagadevara/AkiraGames/GameType"
 )
 
 type HangMan interface {
