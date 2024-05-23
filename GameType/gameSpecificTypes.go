@@ -23,6 +23,20 @@ type HangmanPlayerData struct {
 	TryCount               int8
 }
 
+type CountOfLetters struct {
+	Letter rune
+	Index  []int
+}
+
+type Hangman2 struct {
+	Puzzel                 *Country
+	GuessWord, CrypticWord string
+	CurrentGuessedLetter   rune
+	IsCorrect              bool
+	TryCount               int8
+	LettersInWord          *CountOfLetters
+}
+
 type Country struct {
 	Name    string `json:"name"`
 	Capital string `json:"capital"`

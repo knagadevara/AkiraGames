@@ -1,0 +1,19 @@
+# ceph osd out osd.788
+# ceph osd out osd.789
+# systemctl stop ceph-osd@788
+# systemctl stop ceph-osd@789
+# ps aux | grep ceph-osd | grep 788
+# ps aux | grep ceph-osd | grep 789
+# umount /var/lib/ceph/osd/ceph-788
+# umount /var/lib/ceph/osd/ceph-789
+
+# ceph osd destroy osd.788
+# ceph osd destroy osd.789
+# ceph osd purge osd.788
+# ceph osd purge osd.789
+
+--yes-i-really-mean-it
+
+# ceph-volume lvm batch --bluestore --osds-per-device 2 /dev/nvme10n1  --osd-id 115 788
+
+# ceph osd unset norebalance

@@ -1,4 +1,4 @@
-package GameOn
+package hangman
 
 import (
 	"bufio"
@@ -11,24 +11,26 @@ import (
 	GameType "github.com/knagadevara/AkiraGames/GameType"
 )
 
+type HangManPlayer GameType.HangmanPlayerData
+
 type HangMan interface {
 	DisplayGameState() *HangManPlayer
 	GetInput() *HangManPlayer
 	GetGussWord(Countries []GameType.Country) *HangManPlayer // Selects a random country and its capital.
 	Match() *HangManPlayer                                   // Matches the gussed word with puzzled word.
+	Reveal()
 	MakePuzzleWord() *HangManPlayer
 }
-type HangManPlayer GameType.HangmanPlayerData
 
 // When called takes input and gives a rune.
 func (h *HangManPlayer) GetInput() *HangManPlayer {
 	fmt.Printf("Please Input your Guess! :\t")
 	inpRdr := bufio.NewReader(os.Stdin)
-	word, err := inpRdr.ReadString('\n')
+	r, _, err := inpRdr.ReadRune()
 	if err != nil {
 		log.Fatalln(err)
 	}
-	h.GuessWord = strings.ToLower(strings.TrimSpace(word))
+	h.GuessWord = strings.ToLower(string(r))
 	h.TryCount += 1
 	return h
 }
@@ -50,15 +52,16 @@ func (h *HangManPlayer) MakePuzzleWord() *HangManPlayer {
 	return h
 }
 
-func (h *HangManPlayer) Match() *HangManPlayer {
-	if h.Puzzel.Name == h.GuessWord {
-		h.IsCorrect = true
-		fmt.Println("SUPER!!!")
-		fmt.Printf("Country:\t%v\nCapital:\t%v\nA.K.A:\t\t%v\n", h.Puzzel.Name, h.Puzzel.Capital, h.Puzzel.ISO2)
-	} else {
-		h.IsCorrect = false
+func (h *HangManPlayer) CountOfLetters() *HangManPlayer {
+	runeCounter := make(map[rune]int)
+	for _, v := range h.GuessWord {
+		runeCounter[v] += 1
 	}
 	return h
+}
+
+func (h *HangManPlayer) Match() *HangManPlayer {
+
 }
 
 func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
