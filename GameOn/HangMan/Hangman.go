@@ -1,4 +1,4 @@
-package hangman
+package Hangman
 
 import (
 	"bufio"
@@ -9,16 +9,16 @@ import (
 	"strings"
 
 	GameType "github.com/knagadevara/AkiraGames/GameType"
+	"github.com/knagadevara/AkiraGames/utl"
 )
 
-type HangManPlayer GameType.HangmanPlayerData
+type HangManPlayer GameType.Hangman2
 
 type HangMan interface {
 	DisplayGameState() *HangManPlayer
 	GetInput() *HangManPlayer
 	GetGussWord(Countries []GameType.Country) *HangManPlayer // Selects a random country and its capital.
-	Match() *HangManPlayer                                   // Matches the gussed word with puzzled word.
-	Reveal()
+	MatchReveal() *HangManPlayer                             // Matches the gussed word with puzzled word.
 	MakePuzzleWord() *HangManPlayer
 }
 
@@ -26,12 +26,7 @@ type HangMan interface {
 func (h *HangManPlayer) GetInput() *HangManPlayer {
 	fmt.Printf("Please Input your Guess! :\t")
 	inpRdr := bufio.NewReader(os.Stdin)
-	r, _, err := inpRdr.ReadRune()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	h.GuessWord = strings.ToLower(string(r))
-	h.TryCount += 1
+	h.CurrentGuessedLetter = utl.GetRune()(inpRdr)
 	return h
 }
 
@@ -41,33 +36,48 @@ func (h *HangManPlayer) GetGussWord(Countries []GameType.Country) *HangManPlayer
 	return h
 }
 
-func (h *HangManPlayer) MakePuzzleWord() *HangManPlayer {
-	wc := len(h.Puzzel.Name) - 1
-	blanks := wc / 2
-	crossedString := []rune(h.Puzzel.Name)
-	for i := 0; i <= blanks; i++ {
-		crossedString[rand.Intn(wc)] = '_'
-	}
-	h.CrypticWord = string(crossedString)
+func (h *HangManPlayer) MakeDashes() *HangManPlayer {
+	h.CrypticWord = strings.Repeat("-", len(h.Puzzel.Name))
 	return h
 }
 
+// Makes a pay which adds the index of similar numbers
 func (h *HangManPlayer) CountOfLetters() *HangManPlayer {
-	runeCounter := make(map[rune]int)
-	for _, v := range h.GuessWord {
-		runeCounter[v] += 1
+	runeCounter := make(map[rune][]int)
+	for ix, v := range h.CrypticWord {
+		runeCounter[v] = append(runeCounter[v], ix)
 	}
+	h.LettersInWord = runeCounter
 	return h
 }
 
-func (h *HangManPlayer) Match() *HangManPlayer {
-
+func (h *HangManPlayer) CheckAndRevealWord() *HangManPlayer {
+	crossword := []rune(h.CrypticWord)
+	ix, ok := h.LettersInWord[h.CurrentGuessedLetter]
+	if ok {
+		for _, v := range ix {
+			crossword[v] = h.CurrentGuessedLetter
+		}
+	} else {
+		log.Panicln("Wrong Guess!!!")
+		h.TryCount += 1
+	}
+	h.CrypticWord = string(crossword)
+	if strings.ContainsRune(h.CrypticWord, '-') {
+		h.IsCorrect = false
+	} else {
+		h.IsCorrect = true
+	}
+	return h
 }
 
 func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 	insigNia := "\t\t=====| * |=====\t\t"
 	header := insigNia + " H A N G M A N " + insigNia
 	footer := insigNia + " * + - | - + * " + insigNia
+	log.Println(header)
+	log.Printf("Guess Me??? >>>> %v", h.CrypticWord)
+	log.Println(footer)
 	pedastal := "===\n=====\n======="
 	pole := "\n||\n||\n||\n||"
 	hanger := "\t============"
@@ -75,18 +85,18 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 	fmt.Printf("%v", header)
 	fmt.Printf("Guess Me!!!! %v\n", h.CrypticWord)
 	switch h.TryCount {
-	case 1:
-		fmt.Printf("%v\n", pedastal)
 	case 2:
+		fmt.Printf("%v\n", pedastal)
+	case 3:
 		fmt.Println("HINT!!!!:\t\t", h.Puzzel.ISO2)
 		fmt.Printf("%v\n", pole)
 		fmt.Printf("\t\t%v\n", pedastal)
-	case 3:
+	case 4:
 		fmt.Println("HINT!!!!:\t\t", h.Puzzel.Capital)
 		fmt.Printf("%v", hanger)
 		fmt.Printf("%v\n", pole)
 		fmt.Printf("\t\t%v\n", pedastal)
-	case 4:
+	case 5:
 		fmt.Printf("%v%v", hanger, hanggedMan)
 		fmt.Printf("%v\n", pole)
 		fmt.Printf("\t\t%v\n", pedastal)
@@ -99,11 +109,25 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 
 func (h *HangManPlayer) GameOn() {
 	for !(h.IsCorrect) {
-		h.DisplayGameState().
+		if h.DisplayGameState().
 			GetInput().
-			Match()
-		if h.TryCount > 4 {
+			CheckAndRevealWord().
+			TryCount > len(h.CrypticWord) {
 			break
 		}
 	}
+}
+
+func Start() {
+	apiBaseUrl := "https://countriesnow.space/api/"
+	apiVersion := "v0.1"
+	apiResource := "/countries/capital"
+	resource_string := fmt.Sprintf(apiBaseUrl + apiVersion + apiResource)
+	resp := utl.LoadGameData[GameType.HangmanApiResp]("GET", resource_string, "../StaticFiles/GameJSON/Countries.json")
+	hangman := HangManPlayer{}
+	hangman.
+		GetGussWord(resp.Rastra).
+		MakeDashes().
+		CountOfLetters().
+		GameOn()
 }

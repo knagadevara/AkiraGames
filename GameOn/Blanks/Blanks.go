@@ -1,14 +1,14 @@
-package blanks
+package Blanks
 
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"strings"
 
 	GameType "github.com/knagadevara/AkiraGames/GameType"
+	"github.com/knagadevara/AkiraGames/utl"
 )
 
 type HangManPlayer GameType.HangmanPlayerData
@@ -25,12 +25,7 @@ type HangMan interface {
 func (h *HangManPlayer) GetInput() *HangManPlayer {
 	fmt.Printf("Please Input your Guess! :\t")
 	inpRdr := bufio.NewReader(os.Stdin)
-	word, err := inpRdr.ReadString('\n')
-	if err != nil {
-		log.Fatalln(err)
-	}
-	h.GuessWord = strings.ToLower(strings.TrimSpace(word))
-	h.TryCount += 1
+	h.GuessWord = utl.GetString()(inpRdr)
 	return h
 }
 
@@ -57,6 +52,7 @@ func (h *HangManPlayer) Match() *HangManPlayer {
 		fmt.Println("SUPER!!!")
 		fmt.Printf("Country:\t%v\nCapital:\t%v\nA.K.A:\t\t%v\n", h.Puzzel.Name, h.Puzzel.Capital, h.Puzzel.ISO2)
 	} else {
+		h.TryCount += 1
 		h.IsCorrect = false
 	}
 	return h
@@ -97,11 +93,23 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 
 func (h *HangManPlayer) GameOn() {
 	for !(h.IsCorrect) {
-		h.DisplayGameState().
+		if h.DisplayGameState().
 			GetInput().
-			Match()
-		if h.TryCount > 4 {
+			Match().TryCount > 4 {
 			break
 		}
 	}
+}
+
+func Start() {
+	apiBaseUrl := "https://countriesnow.space/api/"
+	apiVersion := "v0.1"
+	apiResource := "/countries/capital"
+	resource_string := fmt.Sprintf(apiBaseUrl + apiVersion + apiResource)
+	resp := utl.LoadGameData[GameType.HangmanApiResp]("GET", resource_string, "../StaticFiles/GameJSON/Countries.json")
+	hangman := HangManPlayer{}
+	hangman.
+		GetGussWord(resp.Rastra).
+		MakePuzzleWord().
+		GameOn()
 }

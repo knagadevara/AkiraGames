@@ -1,8 +1,10 @@
 package utl
 
 import (
+	"bufio"
 	"log"
 	"os"
+	"strings"
 )
 
 // Load data from file.
@@ -29,5 +31,27 @@ func LoadGameData[T any](httpMethod, apiURL, fileName string) T {
 
 		data := DecodeFileToStruct[T](file)
 		return data
+	}
+}
+
+// When called takes input and gives a String.
+func GetString() func(inpRdr *bufio.Reader) string {
+	return func(inpRdr *bufio.Reader) string {
+		word, err := inpRdr.ReadString('\n')
+		if err != nil {
+			log.Fatalln(err)
+		}
+		return strings.ToLower(strings.TrimSpace(word))
+	}
+}
+
+// When called takes input and gives a Rune.
+func GetRune() func(inpRdr *bufio.Reader) rune {
+	return func(inpRdr *bufio.Reader) rune {
+		r, _, err := inpRdr.ReadRune()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		return r
 	}
 }
