@@ -11,31 +11,31 @@ import (
 	"github.com/knagadevara/AkiraGames/utl"
 )
 
-type HangManPlayer GameType.HangmanPlayerData
+type BlanksPlayer GameType.BlanksPlayerData
 
-type HangMan interface {
-	DisplayGameState() *HangManPlayer
-	GetInput() *HangManPlayer
-	GetGussWord(Countries []GameType.Country) *HangManPlayer // Selects a random country and its capital.
-	Match() *HangManPlayer                                   // Matches the gussed word with puzzled word.
-	MakePuzzleWord() *HangManPlayer
+type Blanks interface {
+	DisplayGameState() *BlanksPlayer
+	GetInput() *BlanksPlayer
+	GetGussWord(Countries []GameType.Country) *BlanksPlayer // Selects a random country and its capital.
+	Match() *BlanksPlayer                                   // Matches the gussed word with puzzled word.
+	MakePuzzleWord() *BlanksPlayer
 }
 
 // When called takes input and gives a rune.
-func (h *HangManPlayer) GetInput() *HangManPlayer {
+func (h *BlanksPlayer) GetInput() *BlanksPlayer {
 	fmt.Printf("Please Input your Guess! :\t")
 	inpRdr := bufio.NewReader(os.Stdin)
 	h.GuessWord = utl.GetString()(inpRdr)
 	return h
 }
 
-func (h *HangManPlayer) GetGussWord(Countries []GameType.Country) *HangManPlayer {
+func (h *BlanksPlayer) GetGussWord(Countries []GameType.Country) *BlanksPlayer {
 	h.Puzzel = &Countries[rand.Intn(len(Countries))]
 	h.Puzzel.Name = strings.ToLower(h.Puzzel.Name)
 	return h
 }
 
-func (h *HangManPlayer) MakePuzzleWord() *HangManPlayer {
+func (h *BlanksPlayer) MakePuzzleWord() *BlanksPlayer {
 	wc := len(h.Puzzel.Name) - 1
 	blanks := wc / 2
 	crossedString := []rune(h.Puzzel.Name)
@@ -46,7 +46,7 @@ func (h *HangManPlayer) MakePuzzleWord() *HangManPlayer {
 	return h
 }
 
-func (h *HangManPlayer) Match() *HangManPlayer {
+func (h *BlanksPlayer) Match() *BlanksPlayer {
 	if h.Puzzel.Name == h.GuessWord {
 		h.IsCorrect = true
 		fmt.Println("SUPER!!!")
@@ -58,13 +58,13 @@ func (h *HangManPlayer) Match() *HangManPlayer {
 	return h
 }
 
-func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
+func (h *BlanksPlayer) DisplayGameState() *BlanksPlayer {
 	insigNia := "\t\t=====| * |=====\t\t"
-	header := insigNia + " H A N G M A N " + insigNia
+	header := insigNia + " B L A _ N K S " + insigNia
 	footer := insigNia + " * + - | - + * " + insigNia
 	pedastal := "===\n=====\n======="
 	pole := "\n||\n||\n||\n||"
-	hanger := "\t============"
+	hanger := "============"
 	hanggedMan := "|\n|\nO\n/M\\\nA\nH\n>.<"
 	fmt.Printf("%v", header)
 	fmt.Printf("Guess Me!!!! %v\n", h.CrypticWord)
@@ -74,16 +74,15 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 	case 2:
 		fmt.Println("HINT!!!!:\t\t", h.Puzzel.ISO2)
 		fmt.Printf("%v\n", pole)
-		fmt.Printf("\t\t%v\n", pedastal)
+		fmt.Printf("%v\n", pedastal)
 	case 3:
 		fmt.Println("HINT!!!!:\t\t", h.Puzzel.Capital)
-		fmt.Printf("%v", hanger)
+		fmt.Printf("%v\n", hanger)
 		fmt.Printf("%v\n", pole)
-		fmt.Printf("\t\t%v\n", pedastal)
+		fmt.Printf("%v\n", pedastal)
 	case 4:
-		fmt.Printf("%v%v", hanger, hanggedMan)
-		fmt.Printf("%v\n", pole)
-		fmt.Printf("\t\t%v\n", pedastal)
+		fmt.Printf("%v%v\t\t%v\n", pole, hanger, hanggedMan)
+		fmt.Printf("%v\n", pedastal)
 	default:
 		fmt.Println()
 	}
@@ -91,7 +90,7 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 	return h
 }
 
-func (h *HangManPlayer) GameOn() {
+func (h *BlanksPlayer) GamePlay() {
 	for !(h.IsCorrect) {
 		if h.DisplayGameState().
 			GetInput().
@@ -101,15 +100,8 @@ func (h *HangManPlayer) GameOn() {
 	}
 }
 
-func Start() {
-	apiBaseUrl := "https://countriesnow.space/api/"
-	apiVersion := "v0.1"
-	apiResource := "/countries/capital"
-	resource_string := fmt.Sprintf(apiBaseUrl + apiVersion + apiResource)
-	resp := utl.LoadGameData[GameType.HangmanApiResp]("GET", resource_string, "../StaticFiles/GameJSON/Countries.json")
-	hangman := HangManPlayer{}
-	hangman.
-		GetGussWord(resp.Rastra).
+func (h *BlanksPlayer) Start(resp GameType.CountryApiResp) {
+	h.GetGussWord(resp.Rastra).
 		MakePuzzleWord().
-		GameOn()
+		GamePlay()
 }

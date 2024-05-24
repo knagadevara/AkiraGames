@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	bl "github.com/knagadevara/AkiraGames/GameOn/Blanks"
-	hg "github.com/knagadevara/AkiraGames/GameOn/HangMan"
+	"github.com/knagadevara/AkiraGames/GameOn/Blanks"
+	Hangman "github.com/knagadevara/AkiraGames/GameOn/HangMan"
+	staticfiles "github.com/knagadevara/AkiraGames/StaticFiles"
 	"github.com/knagadevara/AkiraGames/utl"
 )
 
@@ -19,12 +20,18 @@ func displayGames() {
 func main() {
 	displayGames()
 	inpRdr := bufio.NewReader(os.Stdin)
-	enterSelection := utl.GetRune()(inpRdr)
+	enterSelection := string(utl.GetRune()(inpRdr))
+	resp := staticfiles.BuildData()
+
 	switch enterSelection {
-	case 1:
-		hg.Start()
-	case 2:
-		bl.Start()
+	case "1":
+		hm := Hangman.HangManPlayer{}
+		hm.Start(resp)
+	case "2":
+		bl := Blanks.BlanksPlayer{}
+		bl.Start(resp)
+	default:
+		fmt.Printf("Please enter a valid number!!\n%v is not accepted\n", enterSelection)
 	}
 
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/knagadevara/AkiraGames/utl"
 )
 
-type HangManPlayer GameType.Hangman2
+type HangManPlayer GameType.HangmanPlayerData
 
 type HangMan interface {
 	DisplayGameState() *HangManPlayer
@@ -29,7 +29,6 @@ func (h *HangManPlayer) GetInput() *HangManPlayer {
 	h.CurrentGuessedLetter = utl.GetRune()(inpRdr)
 	return h
 }
-
 func (h *HangManPlayer) GetGussWord(Countries []GameType.Country) *HangManPlayer {
 	h.Puzzel = &Countries[rand.Intn(len(Countries))]
 	h.Puzzel.Name = strings.ToLower(h.Puzzel.Name)
@@ -44,10 +43,11 @@ func (h *HangManPlayer) MakeDashes() *HangManPlayer {
 // Makes a pay which adds the index of similar numbers
 func (h *HangManPlayer) CountOfLetters() *HangManPlayer {
 	runeCounter := make(map[rune][]int)
-	for ix, v := range h.CrypticWord {
+	for ix, v := range h.Puzzel.Name {
 		runeCounter[v] = append(runeCounter[v], ix)
 	}
 	h.LettersInWord = runeCounter
+	fmt.Println(h.LettersInWord)
 	return h
 }
 
@@ -59,7 +59,7 @@ func (h *HangManPlayer) CheckAndRevealWord() *HangManPlayer {
 			crossword[v] = h.CurrentGuessedLetter
 		}
 	} else {
-		log.Panicln("Wrong Guess!!!")
+		log.Println("Wrong Guess!!!")
 		h.TryCount += 1
 	}
 	h.CrypticWord = string(crossword)
@@ -80,7 +80,7 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 	log.Println(footer)
 	pedastal := "===\n=====\n======="
 	pole := "\n||\n||\n||\n||"
-	hanger := "\t============"
+	hanger := "============"
 	hanggedMan := "|\n|\nO\n/M\\\nA\nH\n>.<"
 	fmt.Printf("%v", header)
 	fmt.Printf("Guess Me!!!! %v\n", h.CrypticWord)
@@ -90,16 +90,16 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 	case 3:
 		fmt.Println("HINT!!!!:\t\t", h.Puzzel.ISO2)
 		fmt.Printf("%v\n", pole)
-		fmt.Printf("\t\t%v\n", pedastal)
+		fmt.Printf("%v\n", pedastal)
 	case 4:
 		fmt.Println("HINT!!!!:\t\t", h.Puzzel.Capital)
-		fmt.Printf("%v", hanger)
+		fmt.Printf("%v\n", hanger)
 		fmt.Printf("%v\n", pole)
-		fmt.Printf("\t\t%v\n", pedastal)
+		fmt.Printf("%v\n", pedastal)
 	case 5:
-		fmt.Printf("%v%v", hanger, hanggedMan)
+		fmt.Printf("%v\t\t%v\n", hanger, hanggedMan)
 		fmt.Printf("%v\n", pole)
-		fmt.Printf("\t\t%v\n", pedastal)
+		fmt.Printf("%v\n", pedastal)
 	default:
 		fmt.Println()
 	}
@@ -107,7 +107,7 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 	return h
 }
 
-func (h *HangManPlayer) GameOn() {
+func (h *HangManPlayer) GamePlay() {
 	for !(h.IsCorrect) {
 		if h.DisplayGameState().
 			GetInput().
@@ -118,16 +118,9 @@ func (h *HangManPlayer) GameOn() {
 	}
 }
 
-func Start() {
-	apiBaseUrl := "https://countriesnow.space/api/"
-	apiVersion := "v0.1"
-	apiResource := "/countries/capital"
-	resource_string := fmt.Sprintf(apiBaseUrl + apiVersion + apiResource)
-	resp := utl.LoadGameData[GameType.HangmanApiResp]("GET", resource_string, "../StaticFiles/GameJSON/Countries.json")
-	hangman := HangManPlayer{}
-	hangman.
-		GetGussWord(resp.Rastra).
+func (h *HangManPlayer) Start(resp GameType.CountryApiResp) {
+	h.GetGussWord(resp.Rastra).
 		MakeDashes().
 		CountOfLetters().
-		GameOn()
+		GamePlay()
 }
