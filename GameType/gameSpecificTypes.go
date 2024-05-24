@@ -33,14 +33,14 @@ type CurrentTryCount interface {
 	GetCurrentTryCount()
 }
 
-type HangmanPlayerData struct {
+type BlanksPlayerData struct {
 	Puzzel                 *Country
 	GuessWord, CrypticWord string
 	IsCorrect              bool
 	TryCount               int
 }
 
-type Hangman2 struct {
+type HangmanPlayerData struct {
 	Puzzel               *Country
 	CrypticWord          string
 	IsCorrect            bool
@@ -56,7 +56,7 @@ type Country struct {
 	ISO3    string `json:"iso3"`
 }
 
-type HangmanApiResp struct {
+type CountryApiResp struct {
 	Error  string    `json:"error"`
 	Msg    string    `json:"msg"`
 	Rastra []Country `json:"data"`

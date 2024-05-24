@@ -12,7 +12,7 @@ import (
 	"github.com/knagadevara/AkiraGames/utl"
 )
 
-type HangManPlayer GameType.Hangman2
+type HangManPlayer GameType.HangmanPlayerData
 
 type HangMan interface {
 	DisplayGameState() *HangManPlayer
@@ -107,7 +107,7 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 	return h
 }
 
-func (h *HangManPlayer) GameOn() {
+func (h *HangManPlayer) GamePlay() {
 	for !(h.IsCorrect) {
 		if h.DisplayGameState().
 			GetInput().
@@ -118,16 +118,9 @@ func (h *HangManPlayer) GameOn() {
 	}
 }
 
-func Start() {
-	apiBaseUrl := "https://countriesnow.space/api/"
-	apiVersion := "v0.1"
-	apiResource := "/countries/capital"
-	resource_string := fmt.Sprintf(apiBaseUrl + apiVersion + apiResource)
-	resp := utl.LoadGameData[GameType.HangmanApiResp]("GET", resource_string, "../StaticFiles/GameJSON/Countries.json")
-	hangman := HangManPlayer{}
-	hangman.
-		GetGussWord(resp.Rastra).
+func (h *HangManPlayer) Start(resp GameType.CountryApiResp) {
+	h.GetGussWord(resp.Rastra).
 		MakeDashes().
 		CountOfLetters().
-		GameOn()
+		GamePlay()
 }
