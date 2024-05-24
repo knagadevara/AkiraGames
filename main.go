@@ -20,16 +20,18 @@ func displayGames() {
 func main() {
 	displayGames()
 	inpRdr := bufio.NewReader(os.Stdin)
-	enterSelection := utl.GetRune()(inpRdr)
+	enterSelection := string(utl.GetRune()(inpRdr))
 	resp := staticfiles.BuildData()
 
 	switch enterSelection {
-	case 1:
+	case "1":
 		hm := Hangman.HangManPlayer{}
 		hm.Start(resp)
-	case 2:
+	case "2":
 		bl := Blanks.BlanksPlayer{}
 		bl.Start(resp)
+	default:
+		fmt.Printf("Please enter a valid number!!\n%v is not accepted\n", enterSelection)
 	}
 
 }
