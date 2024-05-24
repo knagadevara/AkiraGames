@@ -16,11 +16,37 @@ type TextGame interface {
 HANGMAN
 #######
 */
+
+type Puzzle interface {
+	GetPuzzle()
+}
+type GuessWord interface {
+	GetGuessWord()
+}
+type CrypticWord interface {
+	GetCrypticWord()
+}
+type CurrentGuessedLetter interface {
+	GetCurrentGuessedLetter()
+}
+type CurrentTryCount interface {
+	GetCurrentTryCount()
+}
+
 type HangmanPlayerData struct {
 	Puzzel                 *Country
 	GuessWord, CrypticWord string
 	IsCorrect              bool
-	TryCount               int8
+	TryCount               int
+}
+
+type Hangman2 struct {
+	Puzzel               *Country
+	CrypticWord          string
+	IsCorrect            bool
+	TryCount             int
+	CurrentGuessedLetter rune
+	LettersInWord        map[rune][]int
 }
 
 type Country struct {
