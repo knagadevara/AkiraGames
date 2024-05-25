@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"strings"
 
 	GameType "github.com/knagadevara/AkiraGames/GameType"
 	"github.com/knagadevara/AkiraGames/utl"
@@ -29,13 +28,8 @@ func (h *BlanksPlayer) GetInput() *BlanksPlayer {
 	return h
 }
 
-func (h *BlanksPlayer) GetGussWord(Countries []GameType.Country) *BlanksPlayer {
-	h.Puzzel = &Countries[rand.Intn(len(Countries))]
-	h.Puzzel.Name = strings.ToLower(h.Puzzel.Name)
-	return h
-}
-
-func (h *BlanksPlayer) MakePuzzleWord() *BlanksPlayer {
+func (h *BlanksPlayer) MakePuzzleWord(Countries []GameType.Country) *BlanksPlayer {
+	h.Puzzel = utl.GetCountry(Countries)
 	wc := len(h.Puzzel.Name) - 1
 	blanks := wc / 2
 	crossedString := []rune(h.Puzzel.Name)
@@ -101,7 +95,6 @@ func (h *BlanksPlayer) GamePlay() {
 }
 
 func (h *BlanksPlayer) Start(resp GameType.CountryApiResp) {
-	h.GetGussWord(resp.Rastra).
-		MakePuzzleWord().
+	h.MakePuzzleWord(resp.Rastra).
 		GamePlay()
 }

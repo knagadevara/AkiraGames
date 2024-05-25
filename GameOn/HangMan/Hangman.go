@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"strings"
 
@@ -29,21 +28,17 @@ func (h *HangManPlayer) GetInput() *HangManPlayer {
 	h.CurrentGuessedLetter = utl.GetRune()(inpRdr)
 	return h
 }
-func (h *HangManPlayer) GetGussWord(Countries []GameType.Country) *HangManPlayer {
-	h.Puzzel = &Countries[rand.Intn(len(Countries))]
-	h.Puzzel.Name = strings.ToLower(h.Puzzel.Name)
-	return h
-}
 
-func (h *HangManPlayer) MakeDashes() *HangManPlayer {
-	h.CrypticWord = strings.Repeat("-", len(h.Puzzel.Name))
+func (h *HangManPlayer) MakePuzzel(Countries []GameType.Country) *HangManPlayer {
+	h.BPD.Puzzel = utl.GetCountry(Countries)
+	h.BPD.CrypticWord = strings.Repeat("-", len(h.BPD.Puzzel.Name))
 	return h
 }
 
 // Makes a pay which adds the index of similar numbers
 func (h *HangManPlayer) CountOfLetters() *HangManPlayer {
 	runeCounter := make(map[rune][]int)
-	for ix, v := range h.Puzzel.Name {
+	for ix, v := range h.BPD.Puzzel.Name {
 		runeCounter[v] = append(runeCounter[v], ix)
 	}
 	h.LettersInWord = runeCounter
@@ -52,7 +47,7 @@ func (h *HangManPlayer) CountOfLetters() *HangManPlayer {
 }
 
 func (h *HangManPlayer) CheckAndRevealWord() *HangManPlayer {
-	crossword := []rune(h.CrypticWord)
+	crossword := []rune(h.BPD.CrypticWord)
 	ix, ok := h.LettersInWord[h.CurrentGuessedLetter]
 	if ok {
 		for _, v := range ix {
@@ -60,13 +55,13 @@ func (h *HangManPlayer) CheckAndRevealWord() *HangManPlayer {
 		}
 	} else {
 		log.Println("Wrong Guess!!!")
-		h.TryCount += 1
+		h.BPD.TryCount += 1
 	}
-	h.CrypticWord = string(crossword)
-	if strings.ContainsRune(h.CrypticWord, '-') {
-		h.IsCorrect = false
+	h.BPD.CrypticWord = string(crossword)
+	if strings.ContainsRune(h.BPD.CrypticWord, '-') {
+		h.BPD.IsCorrect = false
 	} else {
-		h.IsCorrect = true
+		h.BPD.IsCorrect = true
 	}
 	return h
 }
@@ -76,23 +71,23 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 	header := insigNia + " H A N G M A N " + insigNia
 	footer := insigNia + " * + - | - + * " + insigNia
 	log.Println(header)
-	log.Printf("Guess Me??? >>>> %v", h.CrypticWord)
+	log.Printf("Guess Me??? >>>> %v", h.BPD.CrypticWord)
 	log.Println(footer)
 	pedastal := "===\n=====\n======="
 	pole := "\n||\n||\n||\n||"
 	hanger := "============"
 	hanggedMan := "|\n|\nO\n/M\\\nA\nH\n>.<"
 	fmt.Printf("%v", header)
-	fmt.Printf("Guess Me!!!! %v\n", h.CrypticWord)
-	switch h.TryCount {
+	fmt.Printf("Guess Me!!!! %v\n", h.BPD.CrypticWord)
+	switch h.BPD.TryCount {
 	case 2:
 		fmt.Printf("%v\n", pedastal)
 	case 3:
-		fmt.Println("HINT!!!!:\t\t", h.Puzzel.ISO2)
+		fmt.Println("HINT!!!!:\t\t", h.BPD.Puzzel.ISO2)
 		fmt.Printf("%v\n", pole)
 		fmt.Printf("%v\n", pedastal)
 	case 4:
-		fmt.Println("HINT!!!!:\t\t", h.Puzzel.Capital)
+		fmt.Println("HINT!!!!:\t\t", h.BPD.Puzzel.Capital)
 		fmt.Printf("%v\n", hanger)
 		fmt.Printf("%v\n", pole)
 		fmt.Printf("%v\n", pedastal)
@@ -108,19 +103,18 @@ func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
 }
 
 func (h *HangManPlayer) GamePlay() {
-	for !(h.IsCorrect) {
+	for !(h.BPD.IsCorrect) {
 		if h.DisplayGameState().
 			GetInput().
 			CheckAndRevealWord().
-			TryCount > len(h.CrypticWord) {
+			BPD.TryCount > len(h.BPD.CrypticWord) {
 			break
 		}
 	}
 }
 
 func (h *HangManPlayer) Start(resp GameType.CountryApiResp) {
-	h.GetGussWord(resp.Rastra).
-		MakeDashes().
+	h.MakePuzzel(resp.Rastra).
 		CountOfLetters().
 		GamePlay()
 }

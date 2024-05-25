@@ -33,20 +33,23 @@ type CurrentTryCount interface {
 	GetCurrentTryCount()
 }
 
+type GameName interface {
+	GetGameName()
+}
+
 type BlanksPlayerData struct {
-	Puzzel                 *Country
-	GuessWord, CrypticWord string
-	IsCorrect              bool
-	TryCount               int
+	Puzzel      *Country // Holds the data of Puzzel
+	CrypticWord string   // Holds the display word
+	GuessWord   string   // Current Guess Word
+	Name        string   // Game Name
+	IsCorrect   bool     // If the guess is correct will be set to true
+	TryCount    int      // Total number of tries
 }
 
 type HangmanPlayerData struct {
-	Puzzel               *Country
-	CrypticWord          string
-	IsCorrect            bool
-	TryCount             int
-	CurrentGuessedLetter rune
-	LettersInWord        map[rune][]int
+	BPD                  *BlanksPlayerData
+	CurrentGuessedLetter rune           //  collects the current guessed letter
+	LettersInWord        map[rune][]int // makes a map of runes with its index
 }
 
 type Country struct {
