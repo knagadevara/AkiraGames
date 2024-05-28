@@ -38,18 +38,20 @@ type GameName interface {
 }
 
 type BlanksPlayerData struct {
-	Puzzel      *Country // Holds the data of Puzzel
-	CrypticWord string   // Holds the display word
-	GuessWord   string   // Current Guess Word
-	Name        string   // Game Name
-	IsCorrect   bool     // If the guess is correct will be set to true
-	TryCount    int      // Total number of tries
+	Puzzel        *Country // Holds the data of Puzzel
+	CrypticWord   string   // Holds the display word
+	GuessWord     string   // Current Guess Word
+	Name          string   // Game Name
+	IsCorrect     bool     // If the guess is correct will be set to true
+	TryCount      int      // Total number of tries
+	PreviousWords map[string]bool
 }
 
 type HangmanPlayerData struct {
 	BPD                  *BlanksPlayerData
 	CurrentGuessedLetter rune           //  collects the current guessed letter
 	LettersInWord        map[rune][]int // makes a map of runes with its index
+	PreviousLetters      map[rune]bool
 }
 
 type Country struct {
