@@ -55,7 +55,7 @@ func (h *BlanksPlayer) Match() *BlanksPlayer {
 func (h *BlanksPlayer) DisplayGameState() *BlanksPlayer {
 
 	insigNia := "\t\t=====| * |=====\t\t"
-	header := insigNia + " H A N G M A N " + insigNia
+	header := insigNia + "\t" + h.Name + "\t" + insigNia
 	footer := insigNia + " * + - | - + * " + insigNia
 	fmt.Printf("Guess Me??? >>>> %v", h.CrypticWord)
 	fmt.Printf("%v", header)
