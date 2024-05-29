@@ -6,7 +6,7 @@ GenericGame
 ###########
 */
 
-type TextGame interface {
+type TextGameIface interface {
 	DisplayGameState()
 	GameOn()
 }
@@ -17,26 +17,62 @@ HANGMAN
 #######
 */
 
-type Puzzle interface {
+type Name string                  // Game Name
+type Puzzel string                // Holds the data of Puzzel
+type CrypticWord string           // Holds the display word
+type GuessWord string             // Current Guess Word
+type IsCorrect bool               // If the guess is correct will be set to true
+type TryCount int                 // Total number of tries
+type CurrentGuessedLetter rune    //  collects the current guessed letter
+type LettersInWord map[rune][]int // makes a map of runes with its index
+type PreviousLetters map[rune]bool
+
+type PuzzleIface interface {
 	GetPuzzle()
+	SetPuzzle()
 }
-type GuessWord interface {
+
+type GuessWordIface interface {
 	GetGuessWord()
+	SetGuessWord()
 }
-type CrypticWord interface {
+type CrypticWordIface interface {
 	GetCrypticWord()
+	SetCrypticWord()
 }
-type CurrentGuessedLetter interface {
+type CurrentGuessedLetterIface interface {
 	GetCurrentGuessedLetter()
+	SetCurrentGuessedLetter()
 }
-type CurrentTryCount interface {
+type CurrentTryCountIface interface {
 	GetCurrentTryCount()
+	SetCurrentTryCount()
 }
 
-type GameName interface {
+type GameNameIface interface {
 	GetGameName()
+	SetGameName()
 }
 
+type IsCorrectIface interface {
+	GetIsCorrect()
+	SetIsCorrect()
+}
+
+type PreviousWordsIface interface {
+	GetPreviousWords()
+	SetPreviousWords()
+}
+
+type PreviousLettersIface interface {
+	GetPreviousLetters()
+	SetPreviousLetters()
+}
+
+type LettersInWordIface interface {
+	GetLettersInWord()
+	SetLettersInWord()
+}
 type BlanksPlayerData struct {
 	Puzzel        *Country // Holds the data of Puzzel
 	CrypticWord   string   // Holds the display word

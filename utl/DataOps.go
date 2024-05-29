@@ -20,8 +20,7 @@ func LoadGameData[T any](httpMethod, apiURL, fileName string) T {
 	if fileInfo != nil && fileInfo.Size() > 0 {
 
 		file = OperateFile(fileName, os.O_RDONLY, 0655)
-		data := DecodeFileToStruct[T](file)
-		return data
+		return DecodeFileToStruct[T](file)
 
 	} else {
 
@@ -32,8 +31,7 @@ func LoadGameData[T any](httpMethod, apiURL, fileName string) T {
 		file = OperateFile(fileName, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0655)
 		_ = WriteToFile(file, resp.Body)
 
-		data := DecodeFileToStruct[T](file)
-		return data
+		return DecodeFileToStruct[T](file)
 	}
 }
 
@@ -65,6 +63,11 @@ func GetCountry(Countries []GameType.Country) *GameType.Country {
 	Puzzel.Name = strings.ToLower(Puzzel.Name)
 	Puzzel.Capital = strings.ToLower(Puzzel.Capital)
 	return Puzzel
+}
+
+// Selects a random item from array
+func GetRandItem[T any](tp []T) *T {
+	return &tp[rand.Intn(len(tp))]
 }
 
 // func DisplayGameState[T any]() T {

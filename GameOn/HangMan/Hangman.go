@@ -20,6 +20,7 @@ type HangMan interface {
 	MakePuzzleWord() *HangManPlayer
 }
 
+// Done
 // When called takes input and gives a rune.
 func (h *HangManPlayer) GetInput() *HangManPlayer {
 	fmt.Printf("Please Input your Guess! :\t")
@@ -28,6 +29,7 @@ func (h *HangManPlayer) GetInput() *HangManPlayer {
 	return h
 }
 
+// Done
 // Show space as space, replace everything else with '-'
 func (h *HangManPlayer) MakePuzzel(Countries []GameType.Country) *HangManPlayer {
 	h.BPD.Puzzel = utl.GetCountry(Countries)
@@ -43,6 +45,7 @@ func (h *HangManPlayer) MakePuzzel(Countries []GameType.Country) *HangManPlayer 
 	return h
 }
 
+// Done
 // Makes a pay which adds the index of similar numbers
 func (h *HangManPlayer) CountOfLetters() *HangManPlayer {
 	runeCounter := make(map[rune][]int)
