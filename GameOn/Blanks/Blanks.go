@@ -53,30 +53,19 @@ func (h *BlanksPlayer) Match() *BlanksPlayer {
 }
 
 func (h *BlanksPlayer) DisplayGameState() *BlanksPlayer {
+
 	insigNia := "\t\t=====| * |=====\t\t"
-	header := insigNia + " B L A _ N K S " + insigNia
+	header := insigNia + "\t" + h.Name + "\t" + insigNia
 	footer := insigNia + " * + - | - + * " + insigNia
-	pedastal := "===\n=====\n======="
-	pole := "\n||\n||\n||\n||"
-	hanger := "============"
-	hanggedMan := "|\n|\nO\n/M\\\nA\nH\n>.<"
+	fmt.Printf("Guess Me??? >>>> %v", h.CrypticWord)
 	fmt.Printf("%v", header)
-	fmt.Printf("Guess Me!!!! %v\n", h.CrypticWord)
 	switch h.TryCount {
-	case 1:
-		fmt.Printf("%v\n", pedastal)
 	case 2:
-		fmt.Println("HINT!!!!:\t\t", h.Puzzel.ISO2)
-		fmt.Printf("%v\n", pole)
-		fmt.Printf("%v\n", pedastal)
 	case 3:
-		fmt.Println("HINT!!!!:\t\t", h.Puzzel.Capital)
-		fmt.Printf("%v\n", hanger)
-		fmt.Printf("%v\n", pole)
-		fmt.Printf("%v\n", pedastal)
+		fmt.Println("HINT!!!!:\t\t", h.Puzzel.ISO2)
 	case 4:
-		fmt.Printf("%v%v\t\t%v\n", pole, hanger, hanggedMan)
-		fmt.Printf("%v\n", pedastal)
+		fmt.Println("HINT!!!!:\t\t", h.Puzzel.Capital)
+	case 5:
 	default:
 		fmt.Println()
 	}

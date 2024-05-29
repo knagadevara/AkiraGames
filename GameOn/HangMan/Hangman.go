@@ -3,7 +3,6 @@ package Hangman
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -21,6 +20,7 @@ type HangMan interface {
 	MakePuzzleWord() *HangManPlayer
 }
 
+// Done
 // When called takes input and gives a rune.
 func (h *HangManPlayer) GetInput() *HangManPlayer {
 	fmt.Printf("Please Input your Guess! :\t")
@@ -29,12 +29,23 @@ func (h *HangManPlayer) GetInput() *HangManPlayer {
 	return h
 }
 
+// Done
+// Show space as space, replace everything else with '-'
 func (h *HangManPlayer) MakePuzzel(Countries []GameType.Country) *HangManPlayer {
 	h.BPD.Puzzel = utl.GetCountry(Countries)
-	h.BPD.CrypticWord = strings.Repeat("-", len(h.BPD.Puzzel.Name))
+	tmpRunes := make([]rune, len(h.BPD.Puzzel.Name))
+	for i, v := range h.BPD.Puzzel.Name {
+		if v == ' ' {
+			tmpRunes[i] = ' '
+		} else {
+			tmpRunes[i] = '_'
+		}
+	}
+	h.BPD.CrypticWord = string(tmpRunes)
 	return h
 }
 
+// Done
 // Makes a pay which adds the index of similar numbers
 func (h *HangManPlayer) CountOfLetters() *HangManPlayer {
 	runeCounter := make(map[rune][]int)
@@ -46,6 +57,9 @@ func (h *HangManPlayer) CountOfLetters() *HangManPlayer {
 	return h
 }
 
+// Check If the gussed letter exists in LettersInWord map
+// else increases try-count and adds the gussed letter to PreviousLetters.
+// Checks if all letters are completed
 func (h *HangManPlayer) CheckAndRevealWord() *HangManPlayer {
 	crossword := []rune(h.BPD.CrypticWord)
 	ix, ok := h.LettersInWord[h.CurrentGuessedLetter]
@@ -54,8 +68,9 @@ func (h *HangManPlayer) CheckAndRevealWord() *HangManPlayer {
 			crossword[v] = h.CurrentGuessedLetter
 		}
 	} else {
-		log.Println("Wrong Guess!!!")
+		h.PreviousLetters[h.CurrentGuessedLetter] = true
 		h.BPD.TryCount += 1
+		fmt.Println("Wrong Guess!!!")
 	}
 	h.BPD.CrypticWord = string(crossword)
 	if strings.ContainsRune(h.BPD.CrypticWord, '-') {
@@ -67,34 +82,19 @@ func (h *HangManPlayer) CheckAndRevealWord() *HangManPlayer {
 }
 
 func (h *HangManPlayer) DisplayGameState() *HangManPlayer {
+
 	insigNia := "\t\t=====| * |=====\t\t"
-	header := insigNia + " H A N G M A N " + insigNia
+	header := insigNia + "\t" + h.BPD.Name + "\t" + insigNia
 	footer := insigNia + " * + - | - + * " + insigNia
-	log.Println(header)
-	log.Printf("Guess Me??? >>>> %v", h.BPD.CrypticWord)
-	log.Println(footer)
-	pedastal := "===\n=====\n======="
-	pole := "\n||\n||\n||\n||"
-	hanger := "============"
-	hanggedMan := "|\n|\nO\n/M\\\nA\nH\n>.<"
+	fmt.Printf("Guess Me??? >>>> %v", h.BPD.CrypticWord)
 	fmt.Printf("%v", header)
-	fmt.Printf("Guess Me!!!! %v\n", h.BPD.CrypticWord)
 	switch h.BPD.TryCount {
 	case 2:
-		fmt.Printf("%v\n", pedastal)
 	case 3:
 		fmt.Println("HINT!!!!:\t\t", h.BPD.Puzzel.ISO2)
-		fmt.Printf("%v\n", pole)
-		fmt.Printf("%v\n", pedastal)
 	case 4:
 		fmt.Println("HINT!!!!:\t\t", h.BPD.Puzzel.Capital)
-		fmt.Printf("%v\n", hanger)
-		fmt.Printf("%v\n", pole)
-		fmt.Printf("%v\n", pedastal)
 	case 5:
-		fmt.Printf("%v\t\t%v\n", hanger, hanggedMan)
-		fmt.Printf("%v\n", pole)
-		fmt.Printf("%v\n", pedastal)
 	default:
 		fmt.Println()
 	}
