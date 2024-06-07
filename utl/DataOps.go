@@ -2,6 +2,7 @@ package utl
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -67,41 +68,7 @@ func GetCountry(Countries []GameType.Country) *GameType.Country {
 
 // Selects a random item from array
 func GetRandItem[T any](tp []T) *T {
-	return &tp[rand.Intn(len(tp))]
+	fmt.Println(len(tp))
+	c := tp[rand.Intn(len(tp))]
+	return &c
 }
-
-// func DisplayGameState[T any]() T {
-// 	insigNia := "\t\t=====| * |=====\t\t"
-// 	header := insigNia + " H A N G M A N " + insigNia
-// 	footer := insigNia + " * + - | - + * " + insigNia
-// 	log.Println(header)
-// 	log.Printf("Guess Me??? >>>> %v", h.CrypticWord)
-// 	log.Println(footer)
-// 	pedastal := "===\n=====\n======="
-// 	pole := "\n||\n||\n||\n||"
-// 	hanger := "============"
-// 	hanggedMan := "|\n|\nO\n/M\\\nA\nH\n>.<"
-// 	fmt.Printf("%v", header)
-// 	fmt.Printf("Guess Me!!!! %v\n", h.CrypticWord)
-// 	switch h.TryCount {
-// 	case 2:
-// 		fmt.Printf("%v\n", pedastal)
-// 	case 3:
-// 		fmt.Println("HINT!!!!:\t\t", h.Puzzel.ISO2)
-// 		fmt.Printf("%v\n", pole)
-// 		fmt.Printf("%v\n", pedastal)
-// 	case 4:
-// 		fmt.Println("HINT!!!!:\t\t", h.Puzzel.Capital)
-// 		fmt.Printf("%v\n", hanger)
-// 		fmt.Printf("%v\n", pole)
-// 		fmt.Printf("%v\n", pedastal)
-// 	case 5:
-// 		fmt.Printf("%v\t\t%v\n", hanger, hanggedMan)
-// 		fmt.Printf("%v\n", pole)
-// 		fmt.Printf("%v\n", pedastal)
-// 	default:
-// 		fmt.Println()
-// 	}
-// 	fmt.Printf("%v", footer)
-// 	return h
-// }

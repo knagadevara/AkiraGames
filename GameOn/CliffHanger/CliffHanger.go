@@ -10,6 +10,12 @@ import (
 	"github.com/knagadevara/AkiraGames/utl"
 )
 
+type CountryApiResp struct {
+	Error string    `json:"error"`
+	Msg   string    `json:"msg"`
+	Data  []Country `json:"data"`
+}
+
 type Country struct {
 	Name    string `json:"name"`
 	Capital string `json:"capital"`
@@ -41,8 +47,8 @@ type GuessWordIface interface {
 
 type IsCorrect bool // If the guess is correct will be set to true
 type IsCorrectIface interface {
-	SetIsCorrect(tf bool) *IsCorrect
-	CheckIfCorrect(cw CrypticWord) *IsCorrect
+	SetIsCorrect(tf bool) IsCorrect
+	CheckIfCorrect(cw CrypticWord) IsCorrect
 }
 
 type LettersInWord map[Letter][]int // makes a map of runes with its index
@@ -83,11 +89,12 @@ type CliffhangerPlayerData struct {
 	Country              *Country
 	CrypticWord          *CrypticWord
 	GuessWord            *GuessWord
-	IsCorrect            *IsCorrect
+	IsCorrect            IsCorrect
 	TryCount             *TryCount
 	CurrentGuessedLetter *Letter
 	LettersInWord        *LettersInWord
 	PreviousLetters      *PreviousLetters
+	LastGusessCorrect    IsCorrect
 }
 
 func (c *Country) SetCountry() *Country {
@@ -95,15 +102,11 @@ func (c *Country) SetCountry() *Country {
 	apiVersion := "v0.1"
 	apiResource := "/countries/capital"
 	resource_string := apiBaseUrl + apiVersion + apiResource
-	CountryResp := utl.LoadGameData[struct {
-		Error     string
-		Msg       string
-		Countries []Country
-	}]("GET", resource_string, "StaticFiles/GameJSON/Countries.json")
+	CountryResp := utl.LoadGameData[CountryApiResp]("GET", resource_string, "/Users/snagadev/go/src/AkiraGames/StaticFiles/GameJSON/Countries.json")
 	if CountryResp.Error != "" {
 		log.Fatalln("Unable to Get Data")
 	}
-	return utl.GetRandItem(CountryResp.Countries)
+	return utl.GetRandItem(CountryResp.Data)
 }
 func (c *Country) GetCountry() *string { return &c.Name }
 func (c *Country) GetCapital() *string { return &c.Capital }
@@ -114,10 +117,7 @@ func (g GameName) SetGameName(name string) *GameName {
 	return &g
 }
 
-func (Is IsCorrect) SetIsCorrect(tf bool) *IsCorrect {
-	Is = IsCorrect(tf)
-	return &Is
-}
+func (Is IsCorrect) SetIsCorrect(tf bool) IsCorrect { return IsCorrect(tf) }
 
 func (c CrypticWord) SetCrypticWord(word GuessWord) *CrypticWord {
 	tmpRunes := make([]rune, len(word))
@@ -139,18 +139,19 @@ func (g GuessWord) SetGuessWord(c *Country) *GuessWord {
 }
 
 // Checks if all letters are completed
-func (Ic IsCorrect) CheckIfCorrect(cw CrypticWord) *IsCorrect {
+func (Ic IsCorrect) CheckIfCorrect(cw CrypticWord) IsCorrect {
 	if strings.ContainsRune(string(cw), '-') {
-		Ic = *Ic.SetIsCorrect(false)
-		return &Ic
+		return Ic.SetIsCorrect(true)
 	} else {
-		Ic = IsCorrect(true)
-		return &Ic
+		return Ic.SetIsCorrect(false)
 	}
 }
 
 // Makes an array of indexs of all the letters in word in Map
 func (l LettersInWord) SetLettersInWord(g GuessWord) *LettersInWord {
+	if l == nil {
+		l = make(LettersInWord)
+	}
 	for ix, v := range g {
 		l[Letter(v)] = append(l[Letter(v)], ix)
 	}
@@ -168,13 +169,20 @@ func (crypt CrypticWord) CheckIfLetterExists(l LettersInWord, guessLetter Letter
 		crypt = CrypticWord(crossword)
 		return &crypt
 	}
-	fmt.Println("Wrong Guess!!!")
 	return &crypt
 }
 
 // Adds the word to Previously gussed list.
 func (pl PreviousLetters) SetPreviousLetters(guessLetter Letter) *PreviousLetters {
-	pl[guessLetter] = true
+	if pl == nil {
+		pl = make(PreviousLetters)
+	}
+	_, ok := pl[guessLetter]
+	if ok {
+		fmt.Println("Already Guessed Letter!!")
+	} else {
+		pl[guessLetter] = true
+	}
 	return &pl
 }
 
@@ -192,42 +200,82 @@ func (l Letter) SetLetter() *Letter {
 	return &l
 }
 
-func (Cf *CliffhangerPlayerData) DisplayGameState() *CliffhangerPlayerData {
-	insigNia := "\t\t=====| * |=====\t\t"
-	header := insigNia + "\t" + string(*Cf.Name) + "\t" + insigNia
-	footer := insigNia + " * + - | - + * " + insigNia
-	fmt.Printf("%v", header)
-	fmt.Printf("Guess Me??? >>>> %v", Cf.CrypticWord)
-	fmt.Printf("%v", footer)
-	return Cf
+// Show Hangman Status "StaticFiles/hangmanStates/1"
+func (Cf CliffhangerPlayerData) PrintHangman(filePath string) {
+	utl.CheckFileExists(filePath)
+	flBuff := utl.LoadFile(filePath)
+	fmt.Println(string(flBuff))
+}
+
+// Display Header and Footer onlyh once
+func (Cf CliffhangerPlayerData) PrintHeader(Header string) { fmt.Printf("%v\n\n", Header) }
+func (Cf CliffhangerPlayerData) PrintFooter(Footer string) { fmt.Printf("%v\n\n", Footer) }
+
+// Score Board.
+func (Cf CliffhangerPlayerData) DisplayGameState() *CliffhangerPlayerData {
+	fmt.Printf("Guess Me>>>>\t\t%v\n", string(*Cf.CrypticWord))
+	fmt.Printf("Tries\t\t\t\t%v\n", *Cf.TryCount)
+	return &Cf
 }
 
 func (Cf *CliffhangerPlayerData) Initiate() *CliffhangerPlayerData {
-	Cf.Name = Cf.Name.SetGameName("Cliffhanger")
-	Cf.Country = Cf.Country.SetCountry()
-	Cf.GuessWord = Cf.GuessWord.SetGuessWord(Cf.Country)
-	Cf.LettersInWord = Cf.LettersInWord.SetLettersInWord(*Cf.GuessWord)
-	Cf.IsCorrect = Cf.IsCorrect.SetIsCorrect(false)
-	Cf.TryCount = Cf.TryCount.SetTryCount(0)
-	Cf.CrypticWord = Cf.CrypticWord.SetCrypticWord(*Cf.GuessWord)
+	var g GameName
+	Cf.Name = g.SetGameName("Cliffhanger")
+	c := &Country{}
+	Cf.Country = c.SetCountry()
+	var gw GuessWord
+	Cf.GuessWord = gw.SetGuessWord(Cf.Country)
+	lw := make(LettersInWord, len(*Cf.GuessWord))
+	Cf.LettersInWord = lw.SetLettersInWord(*Cf.GuessWord)
+	var Ic IsCorrect
+	Cf.IsCorrect = Ic.SetIsCorrect(false)
+	Cf.LastGusessCorrect = IsCorrect(false)
+	var Tc TryCount
+	Cf.TryCount = Tc.SetTryCount(0)
+	var cw CrypticWord
+	Cf.CrypticWord = cw.SetCrypticWord(*Cf.GuessWord)
+	var l Letter
+	Cf.CurrentGuessedLetter = &l
+	var pvl PreviousLetters
+	Cf.PreviousLetters = &pvl
+	Cf.PrintHeader(Cf.InsigNia(string(*Cf.Name)))
 	return Cf
 }
 
-func (Cf *CliffhangerPlayerData) GamePlay() {
+func (Cf *CliffhangerPlayerData) GamePlay() *CliffhangerPlayerData {
 	word := TryCount(len(*Cf.CrypticWord))
-	for !(*Cf.IsCorrect) {
-		Cf.CurrentGuessedLetter = Cf.DisplayGameState().CurrentGuessedLetter.SetLetter()
+	fmt.Println("Word Count", word)
+	for !(Cf.IsCorrect) {
+		Cf = Cf.DisplayGameState()
+		Cf.CurrentGuessedLetter = Cf.CurrentGuessedLetter.SetLetter()
 		Cf.CrypticWord = Cf.CrypticWord.CheckIfLetterExists(*Cf.LettersInWord, *Cf.CurrentGuessedLetter)
 		Cf.PreviousLetters = Cf.PreviousLetters.SetPreviousLetters(*Cf.CurrentGuessedLetter)
+		if strings.Contains(string(*Cf.CrypticWord), string(*Cf.CurrentGuessedLetter)) {
+			Cf.TryCount = Cf.TryCount.SetTryCount(0)
+		} else {
+			if *Cf.TryCount <= 11 {
+				flNm := fmt.Sprintf("StaticFiles/hangmanStates/%v", *Cf.TryCount)
+				Cf.PrintHangman(flNm)
+			}
+			Cf.TryCount = Cf.TryCount.SetTryCount(1)
+		}
 		Cf.IsCorrect = Cf.IsCorrect.CheckIfCorrect(*Cf.CrypticWord)
-		Cf.TryCount = Cf.TryCount.SetTryCount(1)
-		if *Cf.TryCount > word {
+		if *Cf.TryCount > word+4 {
+			fmt.Printf("Maximum Tries Reached!!!\n")
 			break
 		}
 	}
+	return Cf
+}
+
+func (Cf *CliffhangerPlayerData) InsigNia(mark string) string {
+	insigNia := "\t\t=====| * |=====\t\t"
+	return fmt.Sprintf(insigNia + "\t" + mark + "\t" + insigNia)
 }
 
 func (Cf *CliffhangerPlayerData) Start() {
+	footer := " * + - | - + * "
 	Cf.Initiate().
-		GamePlay()
+		GamePlay().
+		PrintFooter(Cf.InsigNia(footer))
 }

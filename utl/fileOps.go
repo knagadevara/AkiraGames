@@ -8,6 +8,18 @@ import (
 	"os"
 )
 
+// Opens a file and makes it available in byte array
+func LoadFile(flPth string) []byte {
+	flBf, err := os.ReadFile(flPth)
+	if err != nil {
+		log.Fatalf("Failed to resolve config path: %v", err)
+		return nil
+	} else {
+		return flBf
+	}
+}
+
+// OPens a file and gives the file buffer
 func OperateFile(fileName string, openPerms int, filePerms os.FileMode) *os.File {
 	file, err := os.OpenFile(fileName, openPerms, filePerms)
 	if err != nil {
@@ -52,7 +64,6 @@ func CheckFileExists(fileName string) os.FileInfo {
 		log.Printf("File Not found %v\n", err)
 		return nil
 	} else {
-		log.Printf("Loading %s...\n", fileName)
 		return fileInfo
 	}
 }
