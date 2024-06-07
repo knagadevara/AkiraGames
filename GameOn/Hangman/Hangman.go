@@ -1,4 +1,4 @@
-package cliffhanger
+package hangman
 
 import (
 	"bufio"
