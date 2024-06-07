@@ -7,7 +7,6 @@ import (
 
 	"github.com/knagadevara/AkiraGames/GameOn/Blanks"
 	cliffhanger "github.com/knagadevara/AkiraGames/GameOn/CliffHanger"
-	Hangman "github.com/knagadevara/AkiraGames/GameOn/HangMan"
 	staticfiles "github.com/knagadevara/AkiraGames/StaticFiles"
 	"github.com/knagadevara/AkiraGames/utl"
 )
@@ -28,12 +27,9 @@ func main() {
 
 	switch enterSelection {
 	case "1":
-		hm := Hangman.HangManPlayer{}
-		hm.Start(resp)
-	case "2":
 		bl := Blanks.BlanksPlayer{}
 		bl.Start(resp)
-	case "3":
+	case "2":
 		cl := cliffhanger.CliffhangerPlayerData{}
 		cl.Start()
 	default:

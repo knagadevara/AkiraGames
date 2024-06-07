@@ -243,8 +243,7 @@ func (Cf *CliffhangerPlayerData) Initiate() *CliffhangerPlayerData {
 }
 
 func (Cf *CliffhangerPlayerData) GamePlay() *CliffhangerPlayerData {
-	word := TryCount(len(*Cf.CrypticWord))
-	fmt.Println("Word Count", word)
+	wordLen := TryCount(len(*Cf.CrypticWord))
 	for !(Cf.IsCorrect) {
 		Cf = Cf.DisplayGameState()
 		Cf.CurrentGuessedLetter = Cf.CurrentGuessedLetter.SetLetter()
@@ -260,9 +259,11 @@ func (Cf *CliffhangerPlayerData) GamePlay() *CliffhangerPlayerData {
 			Cf.TryCount = Cf.TryCount.SetTryCount(1)
 		}
 		Cf.IsCorrect = Cf.IsCorrect.CheckIfCorrect(*Cf.CrypticWord)
-		if *Cf.TryCount > word+4 {
-			fmt.Printf("Maximum Tries Reached!!!\n")
-			break
+		if *Cf.TryCount <= 12 {
+			if *Cf.TryCount > wordLen+4 {
+				fmt.Printf("Maximum Tries Reached!!!\n")
+				break
+			}
 		}
 	}
 	return Cf
