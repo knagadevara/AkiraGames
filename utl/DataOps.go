@@ -7,8 +7,6 @@ import (
 	"math/rand"
 	"os"
 	"strings"
-
-	"github.com/knagadevara/AkiraGames/GameType"
 )
 
 // Load data from file.
@@ -56,14 +54,6 @@ func GetRune() func(inpRdr *bufio.Reader) rune {
 		}
 		return r
 	}
-}
-
-// Selects a random word
-func GetCountry(Countries []GameType.Country) *GameType.Country {
-	Puzzel := &Countries[rand.Intn(len(Countries))]
-	Puzzel.Name = strings.ToLower(Puzzel.Name)
-	Puzzel.Capital = strings.ToLower(Puzzel.Capital)
-	return Puzzel
 }
 
 // Selects a random item from array
