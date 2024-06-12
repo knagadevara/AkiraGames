@@ -117,7 +117,10 @@ func (g GameName) SetGameName(name string) *GameName {
 	return &g
 }
 
-func (Is IsCorrect) SetIsCorrect(tf bool) IsCorrect { return IsCorrect(tf) }
+func (Is IsCorrect) SetIsCorrect(tf bool) *IsCorrect {
+	Is = IsCorrect(tf)
+	return &Is
+}
 
 func (c CrypticWord) SetCrypticWord(word GuessWord) *CrypticWord {
 	tmpRunes := make([]rune, len(word))
@@ -139,7 +142,7 @@ func (g GuessWord) SetGuessWord(c *Country) *GuessWord {
 }
 
 // Checks if all letters are completed
-func (Ic IsCorrect) CheckIfCorrect(cw CrypticWord) IsCorrect {
+func (Ic IsCorrect) CheckIfCorrect(cw CrypticWord) *IsCorrect {
 	if strings.ContainsRune(string(cw), '-') {
 		return Ic.SetIsCorrect(true)
 	} else {
@@ -219,16 +222,12 @@ func (Cf CliffhangerPlayerData) DisplayGameState() *CliffhangerPlayerData {
 }
 
 func (Cf *CliffhangerPlayerData) Initiate() *CliffhangerPlayerData {
-	var g GameName
-	Cf.Name = g.SetGameName("Cliffhanger")
+	Cf.Name.SetGameName("Cliffhanger")
 	c := &Country{}
 	Cf.Country = c.SetCountry()
-	var gw GuessWord
-	Cf.GuessWord = gw.SetGuessWord(Cf.Country)
-	lw := make(LettersInWord, len(*Cf.GuessWord))
-	Cf.LettersInWord = lw.SetLettersInWord(*Cf.GuessWord)
-	var Ic IsCorrect
-	Cf.IsCorrect = Ic.SetIsCorrect(false)
+	Cf.GuessWord.SetGuessWord(Cf.Country)
+	Cf.LettersInWord.SetLettersInWord(*Cf.GuessWord)
+	Cf.IsCorrect.SetIsCorrect(false)
 	Cf.LastGusessCorrect = IsCorrect(false)
 	var Tc TryCount
 	Cf.TryCount = Tc.SetTryCount(0)
@@ -258,7 +257,7 @@ func (Cf *CliffhangerPlayerData) GamePlay() *CliffhangerPlayerData {
 			}
 			Cf.TryCount = Cf.TryCount.SetTryCount(1)
 		}
-		Cf.IsCorrect = Cf.IsCorrect.CheckIfCorrect(*Cf.CrypticWord)
+		Cf.IsCorrect = *Cf.IsCorrect.CheckIfCorrect(*Cf.CrypticWord)
 		if *Cf.TryCount <= 12 {
 			if *Cf.TryCount > wordLen+4 {
 				fmt.Printf("Maximum Tries Reached!!!\n")
