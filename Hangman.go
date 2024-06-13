@@ -1,123 +1,23 @@
-package hangman
+package AkiraGames
 
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/knagadevara/AkiraGames/utl"
 )
 
-type CountryApiResp struct {
-	Error string    `json:"error"`
-	Msg   string    `json:"msg"`
-	Data  []Country `json:"data"`
-}
-
-type Country struct {
-	Name    string `json:"name"`
-	Capital string `json:"capital"`
-	ISO2    string `json:"iso2"`
-	ISO3    string `json:"iso3"`
-}
-type CountryIface interface {
-	SetCountry() *Country
-	GetCountry() *string
-	GetCapital() *string
-	GetISO() *string
-}
-
-type GameName string // Game Name
-type GameNameIface interface {
-	SetGameName(name string) *GameName
-}
-
-type CrypticWord string // Holds the display word
-type CrypticWordIface interface {
-	SetCrypticWord(word GuessWord) *CrypticWord
-	CheckIfLetterExists(l LettersInWord, guessLetter Letter) *CrypticWord
-}
-
-type GuessWord string // Current Guess Word
-type GuessWordIface interface {
-	SetGuessWord(c *Country) *GuessWord
-}
-
-type IsCorrect bool // If the guess is correct will be set to true
-type IsCorrectIface interface {
-	SetIsCorrect(tf bool) IsCorrect
-	CheckIfCorrect(cw CrypticWord) IsCorrect
-}
-
-type LettersInWord map[Letter][]int // makes a map of runes with its index
-type LettersInWordIface interface {
-	SetLettersInWord(s string) *LettersInWord
-}
-
-type Letter rune //  collects the current guessed letter
-type LetterIface interface {
-	SetLetter() *Letter
-}
-
-type TryCount int // Total number of tries
-type TryCountIface interface {
-	SetTryCount(i int) *TryCount
-}
-type PreviousLetters map[Letter]bool
-type PreviousLettersIface interface {
-	SetPreviousLetters(guessLetter Letter) *PreviousLetters
-}
-
-type Cliffhanger interface {
-	GameNameIface
-	CountryIface
-	CrypticWordIface
-	GuessWordIface
-	IsCorrectIface
-	PreviousLettersIface
-	TryCountIface
-	LetterIface
-	LettersInWordIface
-	Start() *CliffhangerPlayerData
-	GamePlay() *CliffhangerPlayerData
-}
-
-type CliffhangerPlayerData struct {
-	Name                 *GameName
-	Country              *Country
-	CrypticWord          *CrypticWord
-	GuessWord            *GuessWord
-	IsCorrect            IsCorrect
-	TryCount             *TryCount
-	CurrentGuessedLetter *Letter
-	LettersInWord        *LettersInWord
-	PreviousLetters      *PreviousLetters
-	LastGusessCorrect    IsCorrect
-}
-
-func (c *Country) SetCountry() *Country {
-	apiBaseUrl := "https://countriesnow.space/api/"
-	apiVersion := "v0.1"
-	apiResource := "/countries/capital"
-	resource_string := apiBaseUrl + apiVersion + apiResource
-	CountryResp := utl.LoadGameData[CountryApiResp]("GET", resource_string, "/Users/snagadev/go/src/AkiraGames/StaticFiles/GameJSON/Countries.json")
-	if CountryResp.Error != "" {
-		log.Fatalln("Unable to Get Data")
-	}
-	return utl.GetRandItem(CountryResp.Data)
-}
-func (c *Country) GetCountry() *string { return &c.Name }
-func (c *Country) GetCapital() *string { return &c.Capital }
-func (c *Country) GetISO() *string     { return &c.ISO2 }
-
 func (g GameName) SetGameName(name string) *GameName {
 	g = GameName(name)
 	return &g
 }
 
-func (Is IsCorrect) SetIsCorrect(tf bool) IsCorrect { return IsCorrect(tf) }
+func (Is IsCorrect) SetIsCorrect(tf bool) *IsCorrect {
+	Is = IsCorrect(tf)
+	return &Is
+}
 
 func (c CrypticWord) SetCrypticWord(word GuessWord) *CrypticWord {
 	tmpRunes := make([]rune, len(word))
@@ -139,7 +39,7 @@ func (g GuessWord) SetGuessWord(c *Country) *GuessWord {
 }
 
 // Checks if all letters are completed
-func (Ic IsCorrect) CheckIfCorrect(cw CrypticWord) IsCorrect {
+func (Ic IsCorrect) CheckIfCorrect(cw CrypticWord) *IsCorrect {
 	if strings.ContainsRune(string(cw), '-') {
 		return Ic.SetIsCorrect(true)
 	} else {
@@ -219,16 +119,13 @@ func (Cf CliffhangerPlayerData) DisplayGameState() *CliffhangerPlayerData {
 }
 
 func (Cf *CliffhangerPlayerData) Initiate() *CliffhangerPlayerData {
-	var g GameName
-	Cf.Name = g.SetGameName("Cliffhanger")
+
+	Cf.Name.SetGameName("Cliffhanger")
 	c := &Country{}
 	Cf.Country = c.SetCountry()
-	var gw GuessWord
-	Cf.GuessWord = gw.SetGuessWord(Cf.Country)
-	lw := make(LettersInWord, len(*Cf.GuessWord))
-	Cf.LettersInWord = lw.SetLettersInWord(*Cf.GuessWord)
-	var Ic IsCorrect
-	Cf.IsCorrect = Ic.SetIsCorrect(false)
+	Cf.GuessWord.SetGuessWord(Cf.Country)
+	Cf.LettersInWord.SetLettersInWord(*Cf.GuessWord)
+	Cf.IsCorrect.SetIsCorrect(false)
 	Cf.LastGusessCorrect = IsCorrect(false)
 	var Tc TryCount
 	Cf.TryCount = Tc.SetTryCount(0)
@@ -258,7 +155,7 @@ func (Cf *CliffhangerPlayerData) GamePlay() *CliffhangerPlayerData {
 			}
 			Cf.TryCount = Cf.TryCount.SetTryCount(1)
 		}
-		Cf.IsCorrect = Cf.IsCorrect.CheckIfCorrect(*Cf.CrypticWord)
+		Cf.IsCorrect = *Cf.IsCorrect.CheckIfCorrect(*Cf.CrypticWord)
 		if *Cf.TryCount <= 12 {
 			if *Cf.TryCount > wordLen+4 {
 				fmt.Printf("Maximum Tries Reached!!!\n")

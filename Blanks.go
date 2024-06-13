@@ -1,45 +1,13 @@
-package Blanks
+package AkiraGames
 
 import (
 	"bufio"
 	"fmt"
 	"math/rand"
 	"os"
-	"strings"
 
 	"github.com/knagadevara/AkiraGames/utl"
 )
-
-type Country struct {
-	Name    string `json:"name"`
-	Capital string `json:"capital"`
-	ISO2    string `json:"iso2"`
-	ISO3    string `json:"iso3"`
-}
-
-type CountryApiResp struct {
-	Error string    `json:"error"`
-	Msg   string    `json:"msg"`
-	Data  []Country `json:"data"`
-}
-
-type BlanksPlayer struct {
-	Puzzel        *Country // Holds the data of Puzzel
-	CrypticWord   string   // Holds the display word
-	GuessWord     string   // Current Guess Word
-	Name          string   // Game Name
-	IsCorrect     bool     // If the guess is correct will be set to true
-	TryCount      int      // Total number of tries
-	PreviousWords map[string]bool
-}
-
-// Selects a random word
-func GetCountry(Countries []Country) *Country {
-	Puzzel := &Countries[rand.Intn(len(Countries))]
-	Puzzel.Name = strings.ToLower(Puzzel.Name)
-	Puzzel.Capital = strings.ToLower(Puzzel.Capital)
-	return Puzzel
-}
 
 type Blanks interface {
 	DisplayGameState() *BlanksPlayer
@@ -58,7 +26,7 @@ func (h *BlanksPlayer) GetInput() *BlanksPlayer {
 }
 
 func (h *BlanksPlayer) MakePuzzleWord(Countries []Country) *BlanksPlayer {
-	h.Puzzel = GetCountry(Countries)
+	h.Puzzel.SetCountry()
 	wc := len(h.Puzzel.Name) - 1
 	blanks := wc / 2
 	crossedString := []rune(h.Puzzel.Name)
