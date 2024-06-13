@@ -1,116 +1,13 @@
-package hangman
+package AkiraGames
 
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/knagadevara/AkiraGames/utl"
 )
-
-type CountryApiResp struct {
-	Error string    `json:"error"`
-	Msg   string    `json:"msg"`
-	Data  []Country `json:"data"`
-}
-
-type Country struct {
-	Name    string `json:"name"`
-	Capital string `json:"capital"`
-	ISO2    string `json:"iso2"`
-	ISO3    string `json:"iso3"`
-}
-type CountryIface interface {
-	SetCountry() *Country
-	GetCountry() *string
-	GetCapital() *string
-	GetISO() *string
-}
-
-type GameName string // Game Name
-type GameNameIface interface {
-	SetGameName(name string) *GameName
-}
-
-type CrypticWord string // Holds the display word
-type CrypticWordIface interface {
-	SetCrypticWord(word GuessWord) *CrypticWord
-	CheckIfLetterExists(l LettersInWord, guessLetter Letter) *CrypticWord
-}
-
-type GuessWord string // Current Guess Word
-type GuessWordIface interface {
-	SetGuessWord(c *Country) *GuessWord
-}
-
-type IsCorrect bool // If the guess is correct will be set to true
-type IsCorrectIface interface {
-	SetIsCorrect(tf bool) IsCorrect
-	CheckIfCorrect(cw CrypticWord) IsCorrect
-}
-
-type LettersInWord map[Letter][]int // makes a map of runes with its index
-type LettersInWordIface interface {
-	SetLettersInWord(s string) *LettersInWord
-}
-
-type Letter rune //  collects the current guessed letter
-type LetterIface interface {
-	SetLetter() *Letter
-}
-
-type TryCount int // Total number of tries
-type TryCountIface interface {
-	SetTryCount(i int) *TryCount
-}
-type PreviousLetters map[Letter]bool
-type PreviousLettersIface interface {
-	SetPreviousLetters(guessLetter Letter) *PreviousLetters
-}
-
-type Cliffhanger interface {
-	GameNameIface
-	CountryIface
-	CrypticWordIface
-	GuessWordIface
-	IsCorrectIface
-	PreviousLettersIface
-	TryCountIface
-	LetterIface
-	LettersInWordIface
-	Start() *CliffhangerPlayerData
-	GamePlay() *CliffhangerPlayerData
-}
-
-type CliffhangerPlayerData struct {
-	Name                 *GameName
-	Country              *Country
-	CrypticWord          *CrypticWord
-	GuessWord            *GuessWord
-	IsCorrect            IsCorrect
-	TryCount             *TryCount
-	CurrentGuessedLetter *Letter
-	LettersInWord        *LettersInWord
-	PreviousLetters      *PreviousLetters
-	LastGusessCorrect    IsCorrect
-}
-
-func (c *Country) SetCountry() *Country {
-	apiBaseUrl := "https://countriesnow.space/api/"
-	apiVersion := "v0.1"
-	apiResource := "/countries/capital"
-	resource_string := apiBaseUrl + apiVersion + apiResource
-	CountryResp := utl.LoadGameData[CountryApiResp]("GET", resource_string, "/Users/snagadev/go/src/AkiraGames/StaticFiles/GameJSON/Countries.json")
-	if CountryResp.Error != "" {
-		log.Fatalln("Unable to Get Data")
-	}
-	return utl.GetRandItem(CountryResp.Data)
-}
-func (c *Country) GetCountry() *string { return &c.Name }
-func (c *Country) GetCapital() *string { return &c.Capital }
-func (c *Country) GetISO() *string     { return &c.ISO2 }
 
 func (g GameName) SetGameName(name string) *GameName {
 	g = GameName(name)
@@ -222,6 +119,7 @@ func (Cf CliffhangerPlayerData) DisplayGameState() *CliffhangerPlayerData {
 }
 
 func (Cf *CliffhangerPlayerData) Initiate() *CliffhangerPlayerData {
+
 	Cf.Name.SetGameName("Cliffhanger")
 	c := &Country{}
 	Cf.Country = c.SetCountry()
